@@ -34,11 +34,11 @@ $app->get('/tweets/(\d+)', function(Http\Request $request,$id) use ($app){
 	$memory =  new Model\JsonFinder();
 	return $app->render('OneTweet.php',['tweet' => $memory->findOneById($id)]);
 });
-// Update
-$app->put('/tweets/id', $callable);
-// Delete
-$app->delete('/tweets/id', $callable);
 
-// ...
+$app->delete('/tweets/(\d+)', function (Http\Request $request, $id) use ($app) {
+	$deleter = new Model\JsonDelete();
+	$deleter->deleteTweet($id);
+	$app->redirect('/tweets');
+});
 
 return $app;
