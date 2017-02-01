@@ -15,10 +15,10 @@
 		echo $key['content'].'</br>';
 		echo date('d M Y H:i:s', strtotime($key['date'])).'</br>';
 		echo $key['user'].'</br>'.'</br>';
-	}
+	
 ?>
-<h1>Delete a tweet</h1>
-<form action="/tweets/<?= $id ?>" method="POST">
+<form action="/tweets/<?= $key['id'] ?>" method="POST">
     <input type="hidden" name="_method" value="DELETE">
     <input type="submit" value="Delete">
 </form>
+<?php } ?>

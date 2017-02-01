@@ -13,10 +13,12 @@ class Request
     const DELETE = 'DELETE';
 
     private $parameters;
+    private $negotiator = null;
 
     public function __construct(array $query = array(), array $request = array())
     {
         $this->parameters = array_merge($query, $request);
+        $this->negociator = new \Negotiation\Negotiator();
     }
 
     public function getMethod(){
@@ -41,9 +43,26 @@ class Request
         if(isset($this->parameters[$name])) {
             return $this->parameters[$name];
         }
+        return $default;
     }
 
-    public static function createFromGlobals(){
-        return new self($_GET, $_POST);
+    public static function createFromGlobals()
+    {
+        if((isset($_SERVER['CONTENT_TYPE']) &&  $_SERVER['CONTENT_TYPE']==='application/json')
+                ||(isset($_SERVER['HTTP_CONTENT_TYPE']) && $_SERVER['HTTP_CONTENT_TYPE']==='application/json')) {
+            $data    = file_get_contents('php://input');
+            $request = @json_decode($data, true);
+            return new self($_GET, $request);
+        } 
+        else {
+            return new self($_GET, $_POST);
+        }
+    }
+
+    public function guessBestFormat(){
+        $acceptHeader = $_SERVER['HTTP_ACCEPT'];
+        $priorities   = array('text/html', 'application/json', '*/*');
+        $format = $this->negociator->getBest($acceptHeader, $priorities);
+        return $format->getValue();
     }
 }
